@@ -1,27 +1,22 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import { useState, useEffect, RingLoader } from "react";
-// import RegisterScreen from "./screens/RegisterScreen";
+import { useEffect } from "react";
 import LoginScreen from "./screens/LoginScreen";
 import UserDetailsScreen from "./screens/UserDetailsScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import StartingScreen from "./screens/StartingScreen";
+import RegisterScreen from "./screens/RegisterScreen";
+import MultiplayerStarterScreen from "./screens/MultiplayerStarterScreen";
+import GameScreen from "./screens/GameScreen";
 
 <script src="http://192.168.1.55:8097"></script>;
 let data = "";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [loginScreen, setLoginScreen] = useState(true);
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  function loggedInFunction(e) {
-    // console.log(e);
-    setLoggedIn(e);
-  }
-
   useEffect(() => {
     retrieveData();
   }, []);
@@ -42,12 +37,23 @@ export default function App() {
   return (
     <>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
           <Stack.Screen
             name="UserDetailsScreen"
             component={UserDetailsScreen}
           />
+          <Stack.Screen name="StartingScreen" component={StartingScreen} />
+          <Stack.Screen
+            name="MultiplayerStarterScreen"
+            component={MultiplayerStarterScreen}
+          />
+          <Stack.Screen name="GameScreen" component={GameScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </>

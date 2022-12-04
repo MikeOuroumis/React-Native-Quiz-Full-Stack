@@ -6,6 +6,8 @@ const cors = require("cors");
 app.use(cors());
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const http = require("http");
+// const { Server } = require("socket.io");
 
 const JWT_SECRET = "asdlkjlj390[(9ikj}}JIJIF883jASIj3";
 
@@ -80,4 +82,31 @@ app.post("/userData", async (req, res) => {
   } catch (error) {}
 });
 
-app.listen(5000);
+//socket.io
+
+//create WebSocket server
+const WebSocket = require("ws");
+const serverWs = new WebSocket.Server({ port: 5001 });
+
+serverWs.on("connection", (ws) => {
+  ws.on("message", (message) => {
+    console.log(`Received message => ${message}`);
+  });
+  ws.send("Hello! Message From Server");
+});
+// const server = http.createServer(app);
+
+// const io = new Server(server, {
+//   cors: { origin: "http//:192.168.1.55/19000", methods: ["GET", "POST"] },
+// });
+// io.on("connection", (socket) => {
+//   console.log("a user connected");
+//   console.log("a user connected", socket.id);
+//   socket.on("send_message", (data) => {
+//     console.log(data);
+//   });
+// });
+
+app.listen(5000, () => {
+  console.log("server running on port 5000");
+});

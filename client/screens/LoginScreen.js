@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Button from "../components/Button";
 import Input from "../components/Input";
 import { useState } from "react";
+import ButtonComponent from "./../components/ButtonComponent";
 
 export default function LoginScreen(props) {
   const [email, setEmail] = useState();
@@ -27,21 +27,11 @@ export default function LoginScreen(props) {
       .then((data) => {
         // console.log(data, "User Logged In");
         if (data.status === "ok") {
-          alert("login successful");
           setLoggedIn(true);
           console.log(data.data);
           AsyncStorage.setItem("token", JSON.stringify(data.data));
           //go to userDetailsScreen
-          props.navigation.navigate("UserDetailsScreen");
-
-          // console.log(data);
-          // const _storeData = async () => {
-          //   try {
-          //     await AsyncStorage.setItem("token", data.data);
-          //     window.location.href = "./UserDetailsScreen.js";
-          //   } catch {}
-          //   _storeData();
-          // };
+          props.navigation.navigate("StartingScreen");
         }
       })
       .catch((err) => console.error(err));
@@ -67,7 +57,7 @@ export default function LoginScreen(props) {
           secureTextEntry={true}
           onChangeText={(newPassword) => setPassword(newPassword)}
         />
-        <Button title="Login" onPress={handlePress} />
+        <ButtonComponent title="Login" onPress={handlePress} />
         <View
           style={{
             flexDirection: "row",
@@ -82,7 +72,7 @@ export default function LoginScreen(props) {
             style={{
               color: "#2563eb",
             }}
-            onPress={props.registerLoginChange}
+            onPress={() => props.navigation.replace("RegisterScreen")}
           >
             here
           </Text>
@@ -142,114 +132,3 @@ const styles = StyleSheet.create({
     overlayColor: "aqua",
   },
 });
-// const [user, setUser] = React.useState({
-//   email: "",
-//   password: "",
-// });
-// const [errorMessages, setErrorMessages] = React.useState({});
-// let [usersArray, setUsersArray] = useState([]);
-// let [userExists, setUserExists] = useState(false);
-// let userIndex = null;
-// let curUserEmail;
-// let curUserPassword;
-// useEffect(() => {
-//   //logic for getting a value from local storage stored under the key 'key'
-//   const data = localStorage.getItem("usersArray");
-//   //if data is null don't run the next line...
-//   data && setUsersArray(JSON.parse(data));
-//   if (data) usersArray = JSON.parse(data);
-// }, []);
-// function handleChange(event) {
-//   setUser((prevUser) => ({
-//     ...prevUser,
-//     [event.target.name]: event.target.value,
-//   }));
-// }
-// function handleSubmit(event) {
-//   event.preventDefault();
-//   setErrorMessages(validation());
-//   //Does user exist?
-//   for (const item of usersArray) {
-//     if (user.email === item.email) {
-//       setUserExists(true);
-//       userExists = true;
-//       //index to match the email and password later...
-//       console.log(`item: ${usersArray.indexOf(item)}`);
-//       userIndex = usersArray.indexOf(item);
-//       console.log(usersArray[userIndex].email);
-//       break;
-//     } else {
-//       setUserExists(false);
-//       userExists = false;
-//     }
-//   }
-//   curUserEmail = usersArray[userIndex].email;
-//   curUserPassword = usersArray[userIndex].password;
-//   //if the password is correct then login...
-//   if (curUserPassword === event.target.password.value) {
-//     console.log("logged in");
-//     //here must follow the login code...
-//     //pass user data to App.js
-//     //pass userIndex to App.js
-//     const currentUser = usersArray[userIndex];
-//     //how to pass currentUser to App.js
-//     //sends the user index to App.js
-//     props.setUserIndex(userIndex);
-//     return currentUser;
-//   }
-//   if (userExists) console.log("user exists");
-//   else console.log("user doesn't exist");
-// }
-// function validation() {
-//   const errors = {};
-//   if (user.email.trim() === "") errors.email = "Please fill in the email";
-//   if (user.password.trim() === "")
-//     errors.password = "Please fill in the password";
-//   return errors;
-// }
-// return (
-//   <View className="quiz-container">
-//     <Text style={{ color: "#0c88fb" }}>Login</Text>
-//     <View>
-//       {/* <form onSubmit={handleSubmit}> */}
-//       <label style={{ color: "white" }}>Email</label>
-//       <input
-//         id="email"
-//         placeholder="email"
-//         onChange={handleChange}
-//         className="form-control"
-//         name="email"
-//         value={user.email}
-//       ></input>
-//       {errorMessages.email && (
-//         <div className="errorMessages">{errorMessages.email}</div>
-//       )}
-//       <label style={{ color: "white" }}>Password</label>
-//       <input
-//         type="password"
-//         id="password"
-//         placeholder="password"
-//         onChange={handleChange}
-//         className="form-control"
-//         name="password"
-//         value={user.password}
-//       ></input>
-//       {errorMessages.password && (
-//         <Text className="errorMessages">{errorMessages.password}</Text>
-//       )}
-//       <Button title="Submit" />
-//     </View>
-//     {/* </form> */}
-//     <div>
-//       New user? Register{" "}
-//       <button
-//         className="btn btn-link"
-//         onClick={props.registerLogilToggle}
-//         style={{ padding: "0", marginTop: "-5px" }}
-//       >
-//         here
-//       </button>
-//     </div>
-//   </View>
-// );
-// }

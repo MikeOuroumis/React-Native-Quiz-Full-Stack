@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet } from "react-native";
-import Button from "../components/Button";
 import Input from "../components/Input";
 import { useEffect, useState } from "react";
+import ButtonComponent from "../components/ButtonComponent";
+import { NavigationHelpersContext } from "@react-navigation/native";
 
 export default function RegisterScreen(props) {
   const [password, setPassword] = useState(null);
@@ -51,7 +52,7 @@ export default function RegisterScreen(props) {
           secureTextEntry={true}
           onChangeText={(newPassword) => setPassword(newPassword)}
         />
-        <Button title="Register" onPress={handlePress} />
+        <ButtonComponent title="Register" onPress={handlePress} />
         <View
           style={{
             flexDirection: "row",
@@ -66,7 +67,7 @@ export default function RegisterScreen(props) {
             style={{
               color: "#2563eb",
             }}
-            onPress={props.registerLoginChange}
+            onPress={() => props.navigation.replace("LoginScreen")}
           >
             here
           </Text>
