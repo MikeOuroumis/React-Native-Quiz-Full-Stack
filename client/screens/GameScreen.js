@@ -1,17 +1,23 @@
-import { View, Button, Text, StyleSheet } from "react-native";
+import { View, Button, Text, StyleSheet, Pressable } from "react-native";
 import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
+import { EncodeMode, decode } from "html-entities";
+import ButtonComponent from "./../components/ButtonComponent";
 
 export default function GameScreen(props) {
   let [results, setResults] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [isFetching, setIsFetching] = useState(true);
+  let screen = null;
+  let [objAnswers, setObjAnswers] = useState([]);
 
   useEffect(() => {
-    console.log("index passed in Game Screen is: ", props.route.params.index);
-    retrieveData(props.route.params.index);
+    //getting questions from trivia API by using the index of category
+    getQuestionsFromAPI(props.route.params.index);
   }, []);
 
-  async function retrieveData(categoryId) {
+  async function getQuestionsFromAPI(categoryId) {
     try {
       const response = await axios.get(
         `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=easy&type=multiple`
@@ -36,6 +42,7 @@ export default function GameScreen(props) {
         // creating the all_answers array
         for (let result of results) {
           let allAnswers = [...result.incorrect_answers, result.correct_answer];
+
           // shuffling the answers in the array with Durstenfeld shuffle method
           for (let i = allAnswers.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -44,11 +51,10 @@ export default function GameScreen(props) {
           //adding allAnswers in the results
           result.all_answers = allAnswers;
         }
-
-        console.log(results);
         setResults(results);
+        console.log(results);
 
-        // setIsFetching(false);
+        setIsFetching(false);
         return results;
       }
     } catch (err) {
@@ -56,13 +62,61 @@ export default function GameScreen(props) {
     }
   }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Game Screen</Text>
-      <Text style={styles.title}>Category: {props.route.params.category}</Text>
-    </View>
-  );
+  function handlePressAnswer() {
+    console.log("Answer Clicked");
+  }
+
+  if (!isFetching) {
+    let currentAnswers = results[currentQuestion].all_answers;
+    //refactor with useRef
+    if (objAnswers.length < 4) {
+      //creating an array of objects to set the clicked property
+      for (let answer of currentAnswers) {
+        let curObj = {};
+
+        //getting index and set it as key
+        const index = currentAnswers.indexOf(answer);
+        curObj[index] = answer;
+
+        objAnswers.push({ ...curObj });
+      }
+    }
+
+    // create the currentQuestion Index and use it to results
+    const answers = results[currentQuestion].all_answers.map((result) => {
+      return (
+        <Pressable
+          title={result}
+          onPress={handlePressAnswer}
+          style={({ pressed }) => [
+            { opacity: pressed ? 0.75 : 1 },
+            styles.answersPressable,
+          ]}
+          key={result}
+        >
+          <Text style={styles.answer}>{decode(result)}</Text>
+        </Pressable>
+      );
+    });
+
+    screen = (
+      <View style={styles.container}>
+        <Text style={styles.title}>Game Screen</Text>
+        <Text style={styles.title}>
+          {decode(results[currentQuestion].question)}
+        </Text>
+        {answers}
+        <Button
+          title="Next Question"
+          onPress={() => console.log("Next Question Clicked")}
+        />
+      </View>
+    );
+  }
+
+  return screen;
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -75,6 +129,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  answer: {
+    color: "#000",
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  answersPressable: {
+    maxHeight: 50,
+    borderRadius: 10,
+    width: "80%",
+    marginVertical: 10,
+    fontSize: 20,
+    fontWeight: "bold",
+    backgroundColor: "#fff",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
 });
-
-//
