@@ -1,13 +1,12 @@
-import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ButtonComponent from "../components/ButtonComponent";
-import MultiplayerStarterScreen from "../screens/MultiplayerStarterScreen";
-import { NavigationContainer } from "@react-navigation/native";
+import LoginScreen from "./LoginScreen";
 
 export default function StartingScreen(props) {
   const [userData, setUserData] = useState({});
+  const [logout, setLogout] = useState(false);
 
   useEffect(() => {
     retrieveData();
@@ -26,6 +25,17 @@ export default function StartingScreen(props) {
     }
   }
 
+  async function logOutHandler() {
+    try {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.setItem("loggedIn", JSON.stringify(false));
+      setUserData({});
+      props.navigation.replace("LoginScreen");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <View style={styles.globalView}>
       <View style={styles.container}>
@@ -37,7 +47,15 @@ export default function StartingScreen(props) {
         <ButtonComponent
           style={{ marginVertical: 8 }}
           title="Multi Player"
-          onPress={() => props.navigation.navigate("MultiplayerStarterScreen")}
+          onPress={() =>
+            props.navigation.navigate("MultiplayerStarterScreen", {
+              logout: logout,
+            })
+          }
+        />
+        <ButtonComponent
+          title="Logout"
+          onPress={async () => await logOutHandler()}
         />
       </View>
     </View>
@@ -46,8 +64,6 @@ export default function StartingScreen(props) {
 const styles = StyleSheet.create({
   globalView: {
     flex: 1,
-    // justifyContent: "center",
-    // backgroundColor: "#2563eb",
   },
 
   container: {

@@ -1,9 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
-import { useEffect } from "react";
+import React, { useLayoutEffect } from "react";
+import { useEffect, useState } from "react";
 import LoginScreen from "./screens/LoginScreen";
-import UserDetailsScreen from "./screens/UserDetailsScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -16,13 +15,14 @@ import GameScreen from "./screens/GameScreen";
 let data = "";
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+export default function App(props) {
+  const [isLogged, setIsLogged] = useState(false);
+
   useEffect(() => {
     retrieveData();
   }, []);
 
   async function retrieveData() {
-    // data = await AsyncStorage.getItem("token");
     try {
       const value = await AsyncStorage.getItem("token");
       if (value !== null) {
@@ -43,12 +43,8 @@ export default function App() {
           }}
         >
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
-          <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-          <Stack.Screen
-            name="UserDetailsScreen"
-            component={UserDetailsScreen}
-          />
           <Stack.Screen name="StartingScreen" component={StartingScreen} />
+          <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
           <Stack.Screen
             name="MultiplayerStarterScreen"
             component={MultiplayerStarterScreen}

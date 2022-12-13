@@ -1,13 +1,32 @@
 import { View, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Input from "../components/Input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ButtonComponent from "./../components/ButtonComponent";
+import StartingScreen from "./StartingScreen";
 
 export default function LoginScreen(props) {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   let [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    checkIfLoggedIn();
+  }, []);
+
+  async function checkIfLoggedIn() {
+    try {
+      const value = await AsyncStorage.getItem("loggedIn");
+      if (value !== null) {
+        // We have data!!
+        JSON.parse(value) === true &&
+          props.navigation.navigate("StartingScreen");
+      }
+    } catch (error) {
+      // Error retrieving data
+      console.log(error);
+    }
+  }
 
   function handlePress() {
     fetch("http://192.168.1.55:5000/login-user", {
@@ -30,6 +49,9 @@ export default function LoginScreen(props) {
           setLoggedIn(true);
           console.log(data.data);
           AsyncStorage.setItem("token", JSON.stringify(data.data));
+          //set loggedIn to true and use it in App.js to navigate to StartingScreen
+          AsyncStorage.setItem("loggedIn", JSON.stringify(true));
+
           //go to userDetailsScreen
           props.navigation.navigate("StartingScreen");
         }
@@ -37,7 +59,6 @@ export default function LoginScreen(props) {
       .catch((err) => console.error(err));
     // props.isLoggedIn(loggedIn);
   }
-
   return (
     <View style={styles.globalView}>
       <View style={styles.container}>
@@ -57,7 +78,7 @@ export default function LoginScreen(props) {
           secureTextEntry={true}
           onChangeText={(newPassword) => setPassword(newPassword)}
         />
-        <ButtonComponent title="Login" onPress={handlePress} />
+        <ButtonComponent title="Login" onPress={() => handlePress()} />
         <View
           style={{
             flexDirection: "row",

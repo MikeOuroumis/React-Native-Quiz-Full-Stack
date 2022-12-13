@@ -62,8 +62,22 @@ export default function GameScreen(props) {
     }
   }
 
-  function handlePressAnswer() {
-    console.log("Answer Clicked");
+  //web socket connection
+  const ws = new WebSocket("ws://192.168.1.55:5001");
+  ws.onopen = () => {
+    // connection opened
+    ws.send("GameScreen connected to socket"); // send a message
+  };
+
+  function handlePressAnswer(clickedAnswer) {
+    console.log(clickedAnswer);
+    //check if the clicked answer is correct
+    if (clickedAnswer === results[currentQuestion].correct_answer) {
+      //emit the correct answer to the server and update the score of the player
+      ws.send("Correct Answer");
+    } else {
+      console.log("incorrect");
+    }
   }
 
   if (!isFetching) {
@@ -87,7 +101,7 @@ export default function GameScreen(props) {
       return (
         <Pressable
           title={result}
-          onPress={handlePressAnswer}
+          onPress={() => handlePressAnswer(result)}
           style={({ pressed }) => [
             { opacity: pressed ? 0.75 : 1 },
             styles.answersPressable,
