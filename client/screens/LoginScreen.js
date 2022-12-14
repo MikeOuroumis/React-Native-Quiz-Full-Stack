@@ -19,8 +19,7 @@ export default function LoginScreen(props) {
       const value = await AsyncStorage.getItem("loggedIn");
       if (value !== null) {
         // We have data!!
-        JSON.parse(value) === true &&
-          props.navigation.navigate("StartingScreen");
+        JSON.parse(value) === true && props.navigation.navigate("DrawerNested");
       }
     } catch (error) {
       // Error retrieving data
@@ -53,7 +52,7 @@ export default function LoginScreen(props) {
           AsyncStorage.setItem("loggedIn", JSON.stringify(true));
 
           //go to userDetailsScreen
-          props.navigation.navigate("StartingScreen");
+          props.navigation.navigate("DrawerNested");
         }
       })
       .catch((err) => console.error(err));
@@ -93,7 +92,7 @@ export default function LoginScreen(props) {
             style={{
               color: "#2563eb",
             }}
-            onPress={() => props.navigation.replace("RegisterScreen")}
+            onPress={() => props.navigation.navigate("RegisterScreen")}
           >
             here
           </Text>

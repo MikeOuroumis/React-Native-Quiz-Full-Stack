@@ -1,7 +1,9 @@
 {
-  "expoServerPort": 19002,
-  "packagerPort": 19002,
-  "expoServerNgrokUrl": "https://8u-wui.anonymous.awesomeproject.exp.direct",
-  "packagerNgrokUrl": "https://8u-wui.anonymous.awesomeproject.exp.direct",
-  "ngrokPid": 9276
+  "expoServerPort": 19000,
+  "packagerPort": 19000,
+  "expoServerNgrokUrl": null,
+  "packagerNgrokUrl": null,
+  "ngrokPid": null,
+  "packagerPid": null,
+  "webpackServerPort": null
 }

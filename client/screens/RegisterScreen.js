@@ -2,7 +2,6 @@ import { View, Text, StyleSheet } from "react-native";
 import Input from "../components/Input";
 import { useEffect, useState } from "react";
 import ButtonComponent from "../components/ButtonComponent";
-import { NavigationHelpersContext } from "@react-navigation/native";
 
 export default function RegisterScreen(props) {
   const [password, setPassword] = useState(null);
@@ -25,7 +24,12 @@ export default function RegisterScreen(props) {
       }),
     })
       .then((res) => res.json())
-      .then((data) => console.log(data, "userRegister"))
+      .then((data) => {
+        console.log(data, "userRegister");
+        if (data.status === "ok") {
+          props.navigation.navigate("LoginScreen");
+        }
+      })
       .catch((err) => console.error(err));
   }
 
@@ -67,7 +71,7 @@ export default function RegisterScreen(props) {
             style={{
               color: "#2563eb",
             }}
-            onPress={() => props.navigation.replace("LoginScreen")}
+            onPress={() => props.navigation.navigate("LoginScreen")}
           >
             here
           </Text>
