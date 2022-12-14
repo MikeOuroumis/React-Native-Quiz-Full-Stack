@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ButtonComponent from "../components/ButtonComponent";
 import LoginScreen from "./LoginScreen";
+import LoadingScreen from "./LoadingScreen";
 
 export default function StartingScreen(props) {
   const [userData, setUserData] = useState({});
   const [logout, setLogout] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     retrieveData();
@@ -18,6 +20,7 @@ export default function StartingScreen(props) {
       if (value !== null) {
         // We have data!!
         setUserData(JSON.parse(value));
+        setLoading(false);
       }
     } catch (error) {
       // Error retrieving data
@@ -35,7 +38,9 @@ export default function StartingScreen(props) {
       console.log(error);
     }
   }
-
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <View style={styles.globalView}>
       <View style={styles.container}>

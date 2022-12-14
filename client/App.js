@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React from "react";
 // import * as React from "react";
 import { useEffect, useState } from "react";
 import LoginScreen from "./screens/LoginScreen";
@@ -9,10 +8,17 @@ import StartingScreen from "./screens/StartingScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import MultiplayerStarterScreen from "./screens/MultiplayerStarterScreen";
 import GameScreen from "./screens/GameScreen";
+import LoadingScreen from "./screens/LoadingScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from "@react-navigation/drawer";
+import COLORS from "./constants/colors";
 
 import "react-native-gesture-handler";
 
@@ -21,38 +27,65 @@ let data = "";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
-const Tab = createBottomTabNavigator();
 
-function DrawerNested() {
+function AuthenticatedStack() {
   return (
     <Drawer.Navigator
       screenOptions={{
-        drawerStyle: {
-          // backgroundColor: "000",
-          zIndex: 100,
-        },
+        headerStyle: { backgroundColor: COLORS.lighterGrey },
+        headerTintColor: COLORS.primaryBlack,
+        headerTitleStyle: { fontWeight: "bold" },
+        headerTitleAlign: "center",
+        drawerActiveBackgroundColor: COLORS.lightBlue,
+        drawerActiveTintColor: COLORS.primaryBlack,
+        drawerStyle: { backgroundColor: COLORS.lightGrey },
+      }}
+      drawerContent={(props) => {
+        return (
+          <DrawerContentScrollView {...props}>
+            <DrawerItemList {...props} />
+            <DrawerItem
+              label="Logout"
+              onPress={() => {
+                logOutHandler();
+                props.navigation.navigate("LoginScreen");
+              }}
+            />
+          </DrawerContentScrollView>
+        );
       }}
     >
       <Drawer.Screen
-        name="StartingScreen"
+        name="Home"
         component={StartingScreen}
         options={{
-          title: "Home",
-          headerStyle: {
-            backgroundColor: "#000",
-          },
-          headerTintColor: "#fff",
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
+          drawerIcon: ({ focused }) => (
+            <Ionicons name={focused ? "home" : "home-outline"} size={20} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Multiplayer"
+        component={MultiplayerStarterScreen}
+        options={{
+          drawerIcon: ({ focused }) => (
+            <Ionicons name={focused ? "people" : "people-outline"} size={20} />
+          ),
         }}
       />
     </Drawer.Navigator>
   );
 }
 
+function logOutHandler() {
+  AsyncStorage.removeItem("token");
+  AsyncStorage.setItem("loggedIn", JSON.stringify(false));
+  console.log("logged out");
+}
+
 export default function App(props) {
   const [isLogged, setIsLogged] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     retrieveData();
@@ -64,6 +97,8 @@ export default function App(props) {
       if (value !== null) {
         // We have data!!
         data = JSON.parse(value);
+        setIsLogged(true);
+        setIsLoading(false);
       }
     } catch (error) {
       // Error retrieving data
@@ -71,6 +106,10 @@ export default function App(props) {
     }
   }
 
+  // loading screen while checking if user is logged in
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -78,14 +117,12 @@ export default function App(props) {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="LoginScreen" component={LoginScreen} />
-        <Stack.Screen name="DrawerNested" component={DrawerNested} />
-        <Stack.Screen name="StartingScreen" component={StartingScreen} />
-        <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen
-          name="MultiplayerStarterScreen"
-          component={MultiplayerStarterScreen}
+          name="AuthenticatedStack"
+          component={AuthenticatedStack}
         />
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="GameScreen" component={GameScreen} />
       </Stack.Navigator>
     </NavigationContainer>

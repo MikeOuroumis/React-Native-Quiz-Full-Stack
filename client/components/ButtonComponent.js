@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Pressable } from "react-native";
+import COLORS from "../constants/colors";
 
 export default function ButtonComponent(props) {
   return (
@@ -7,7 +8,7 @@ export default function ButtonComponent(props) {
       onPress={props.onPress}
       style={({ pressed }) => [
         {
-          backgroundColor: pressed ? "#2563bb" : "#2563eb",
+          backgroundColor: pressed ? "#2563bb" : COLORS.primaryBlue,
         },
         styles.button,
       ]}
@@ -27,7 +28,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderColor: "white",
     marginTop: 60,
-    // backgroundColor: "#2563eb",
     borderRadius: 20,
     textAlign: "center",
   },

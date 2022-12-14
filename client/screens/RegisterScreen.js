@@ -2,13 +2,16 @@ import { View, Text, StyleSheet } from "react-native";
 import Input from "../components/Input";
 import { useEffect, useState } from "react";
 import ButtonComponent from "../components/ButtonComponent";
+import LoadingScreen from "./LoadingScreen";
 
 export default function RegisterScreen(props) {
   const [password, setPassword] = useState(null);
   const [email, setEmail] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   function handlePress() {
+    setIsAuthenticating(true);
     fetch("http://192.168.1.55:5000/register", {
       method: "POST",
       headers: {
@@ -27,10 +30,14 @@ export default function RegisterScreen(props) {
       .then((data) => {
         console.log(data, "userRegister");
         if (data.status === "ok") {
+          setIsAuthenticating(false);
           props.navigation.navigate("LoginScreen");
         }
       })
       .catch((err) => console.error(err));
+  }
+  if (isAuthenticating) {
+    return <LoadingScreen text={"Creating User..."} />;
   }
 
   return (

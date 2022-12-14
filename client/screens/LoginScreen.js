@@ -1,17 +1,20 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Input from "../components/Input";
 import { useState, useEffect } from "react";
 import ButtonComponent from "./../components/ButtonComponent";
 import StartingScreen from "./StartingScreen";
+import LoadingScreen from "./LoadingScreen";
 
 export default function LoginScreen(props) {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   let [loggedIn, setLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     checkIfLoggedIn();
+    setIsLoading(false);
   }, []);
 
   async function checkIfLoggedIn() {
@@ -19,7 +22,8 @@ export default function LoginScreen(props) {
       const value = await AsyncStorage.getItem("loggedIn");
       if (value !== null) {
         // We have data!!
-        JSON.parse(value) === true && props.navigation.navigate("DrawerNested");
+        JSON.parse(value) === true &&
+          props.navigation.navigate("AuthenticatedStack");
       }
     } catch (error) {
       // Error retrieving data
@@ -27,8 +31,9 @@ export default function LoginScreen(props) {
     }
   }
 
-  function handlePress() {
-    fetch("http://192.168.1.55:5000/login-user", {
+  async function handlePress() {
+    setIsLoading(true);
+    await fetch("http://192.168.1.55:5000/login-user", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -48,16 +53,24 @@ export default function LoginScreen(props) {
           setLoggedIn(true);
           console.log(data.data);
           AsyncStorage.setItem("token", JSON.stringify(data.data));
+
           //set loggedIn to true and use it in App.js to navigate to StartingScreen
           AsyncStorage.setItem("loggedIn", JSON.stringify(true));
 
-          //go to userDetailsScreen
-          props.navigation.navigate("DrawerNested");
+          props.navigation.navigate("AuthenticatedStack");
+          setIsLoading(false);
+        } else {
+          Alert.alert("Login Failed", "Invalid Credentials");
+          setIsLoading(false);
         }
       })
-      .catch((err) => console.error(err));
-    // props.isLoggedIn(loggedIn);
+      .catch((err) => console.log(err));
   }
+
+  if (isLoading) {
+    return <LoadingScreen text={"Logging In..."} />;
+  }
+
   return (
     <View style={styles.globalView}>
       <View style={styles.container}>
