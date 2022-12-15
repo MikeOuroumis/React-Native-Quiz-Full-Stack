@@ -30,6 +30,7 @@ const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function AuthenticatedStack() {
+  const authCtx = useContext(AuthContext);
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -84,21 +85,19 @@ function AuthenticatedStack() {
       />
     </Drawer.Navigator>
   );
-}
-
-async function logOutHandler() {
-  try {
-    //useContext Data must be removed here
-    await AsyncStorage.removeItem("token");
-    await AsyncStorage.setItem("loggedIn", JSON.stringify(false));
-    authCtx.logout();
-  } catch (error) {
-    console.log(error);
+  async function logOutHandler() {
+    try {
+      //useContext Data must be removed here
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.setItem("loggedIn", JSON.stringify(false));
+      authCtx.logout();
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
-export default function App(props) {
-  const [isLogged, setIsLogged] = useState(false);
+function Navigation() {
   const [isLoading, setIsLoading] = useState(false);
   const authCtx = useContext(AuthContext);
 
@@ -107,42 +106,60 @@ export default function App(props) {
   }, []);
 
   async function retrieveData() {
+    setIsLoading(true);
     try {
       const value = await AsyncStorage.getItem("token");
       if (value !== null) {
         // We have data!!
         data = JSON.parse(value);
-        authCtx.authenticate(data.token, data.email, data.username);
-        setIsLogged(true);
+        console.log(data);
+        authCtx.authenticate(data.token, data.email, data.userName);
         setIsLoading(false);
       }
     } catch (error) {
       // Error retrieving data
       console.log(error);
+      setIsLoading(false);
     }
+    setIsLoading(false);
   }
-
+  console.log(authCtx);
   // loading screen while checking if user is logged in
   if (isLoading) {
     return <LoadingScreen />;
   }
   return (
-    <AuthContextProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        {authCtx.isAuthenticated && (
           <Stack.Screen
             name="AuthenticatedStack"
             component={AuthenticatedStack}
           />
+        )}
+        {!authCtx.isAuthenticated && (
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        )}
+        {!authCtx.isAuthenticated && (
           <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+        )}
+
+        {authCtx.isAuthenticated && (
           <Stack.Screen name="GameScreen" component={GameScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default function App(props) {
+  return (
+    <AuthContextProvider>
+      <Navigation />
     </AuthContextProvider>
   );
 }

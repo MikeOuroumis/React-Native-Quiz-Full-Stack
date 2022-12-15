@@ -15,7 +15,7 @@ export default function LoginScreen(props) {
   const authCtx = useContext(AuthContext);
 
   useEffect(() => {
-    checkIfLoggedIn();
+    // checkIfLoggedIn();
     setIsLoading(false);
   }, []);
 
@@ -25,8 +25,8 @@ export default function LoginScreen(props) {
       const value = await AsyncStorage.getItem("loggedIn");
       if (value !== null) {
         // We have data!!
-        JSON.parse(value) === true &&
-          props.navigation.navigate("AuthenticatedStack");
+        // JSON.parse(value) === true &&
+        //   props.navigation.navigate("AuthenticatedStack");
       }
     } catch (error) {
       // Error retrieving data
