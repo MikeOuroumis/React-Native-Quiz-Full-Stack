@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 // import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import LoginScreen from "./screens/LoginScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import StartingScreen from "./screens/StartingScreen";
@@ -19,6 +19,7 @@ import {
   DrawerItem,
 } from "@react-navigation/drawer";
 import COLORS from "./constants/colors";
+import AuthContextProvider, { AuthContext } from "./store/auth-context";
 
 import "react-native-gesture-handler";
 
@@ -46,9 +47,15 @@ function AuthenticatedStack() {
             <DrawerItemList {...props} />
             <DrawerItem
               label="Logout"
-              onPress={() => {
-                logOutHandler();
-                props.navigation.navigate("LoginScreen");
+              icon={({ focused, color, size }) => (
+                <Ionicons
+                  color={color}
+                  size={size}
+                  name={focused ? "log-out" : "log-out-outline"}
+                />
+              )}
+              onPress={async () => {
+                await logOutHandler();
               }}
             />
           </DrawerContentScrollView>
@@ -56,18 +63,20 @@ function AuthenticatedStack() {
       }}
     >
       <Drawer.Screen
-        name="Home"
+        name="StartingScreen"
         component={StartingScreen}
         options={{
+          title: "Home",
           drawerIcon: ({ focused }) => (
             <Ionicons name={focused ? "home" : "home-outline"} size={20} />
           ),
         }}
       />
       <Drawer.Screen
-        name="Multiplayer"
+        name="MultiplayerStarterScreen"
         component={MultiplayerStarterScreen}
         options={{
+          title: "Multiplayer",
           drawerIcon: ({ focused }) => (
             <Ionicons name={focused ? "people" : "people-outline"} size={20} />
           ),
@@ -77,15 +86,21 @@ function AuthenticatedStack() {
   );
 }
 
-function logOutHandler() {
-  AsyncStorage.removeItem("token");
-  AsyncStorage.setItem("loggedIn", JSON.stringify(false));
-  console.log("logged out");
+async function logOutHandler() {
+  try {
+    //useContext Data must be removed here
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.setItem("loggedIn", JSON.stringify(false));
+    authCtx.logout();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 export default function App(props) {
   const [isLogged, setIsLogged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const authCtx = useContext(AuthContext);
 
   useEffect(() => {
     retrieveData();
@@ -97,6 +112,7 @@ export default function App(props) {
       if (value !== null) {
         // We have data!!
         data = JSON.parse(value);
+        authCtx.authenticate(data.token, data.email, data.username);
         setIsLogged(true);
         setIsLoading(false);
       }
@@ -111,20 +127,22 @@ export default function App(props) {
     return <LoadingScreen />;
   }
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen
-          name="AuthenticatedStack"
-          component={AuthenticatedStack}
-        />
-        <Stack.Screen name="LoginScreen" component={LoginScreen} />
-        <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-        <Stack.Screen name="GameScreen" component={GameScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AuthContextProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen
+            name="AuthenticatedStack"
+            component={AuthenticatedStack}
+          />
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+          <Stack.Screen name="GameScreen" component={GameScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthContextProvider>
   );
 }

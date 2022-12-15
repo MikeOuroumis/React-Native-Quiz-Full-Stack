@@ -1,16 +1,18 @@
 import { View, Text, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Input from "../components/Input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import ButtonComponent from "./../components/ButtonComponent";
 import StartingScreen from "./StartingScreen";
 import LoadingScreen from "./LoadingScreen";
+import { AuthContext } from "./../store/auth-context";
 
 export default function LoginScreen(props) {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   let [loggedIn, setLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const authCtx = useContext(AuthContext);
 
   useEffect(() => {
     checkIfLoggedIn();
@@ -19,6 +21,7 @@ export default function LoginScreen(props) {
 
   async function checkIfLoggedIn() {
     try {
+      //value is boolean
       const value = await AsyncStorage.getItem("loggedIn");
       if (value !== null) {
         // We have data!!
@@ -51,6 +54,13 @@ export default function LoginScreen(props) {
         // console.log(data, "User Logged In");
         if (data.status === "ok") {
           setLoggedIn(true);
+          authCtx.authenticate(
+            data.data.token,
+            data.data.email,
+            data.data.userName
+          );
+
+          console.log(authCtx, "authCtx");
           console.log(data.data);
           AsyncStorage.setItem("token", JSON.stringify(data.data));
 
