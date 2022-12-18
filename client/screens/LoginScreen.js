@@ -60,8 +60,6 @@ export default function LoginScreen(props) {
             data.data.userName
           );
 
-          console.log(authCtx, "authCtx");
-          console.log(data.data);
           AsyncStorage.setItem("token", JSON.stringify(data.data));
 
           //set loggedIn to true and use it in App.js to navigate to StartingScreen

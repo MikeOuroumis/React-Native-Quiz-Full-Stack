@@ -9,6 +9,7 @@ import RegisterScreen from "./screens/RegisterScreen";
 import MultiplayerStarterScreen from "./screens/MultiplayerStarterScreen";
 import GameScreen from "./screens/GameScreen";
 import LoadingScreen from "./screens/LoadingScreen";
+import JoinGameScreen from "./screens/JoinGameScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -83,6 +84,16 @@ function AuthenticatedStack() {
           ),
         }}
       />
+      <Drawer.Screen
+        name="JoinGameScreen"
+        component={JoinGameScreen}
+        options={{
+          title: "JoinGameScreen",
+          drawerIcon: ({ focused }) => (
+            <Ionicons name={focused ? "people" : "people-outline"} size={20} />
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
   async function logOutHandler() {
@@ -112,7 +123,6 @@ function Navigation() {
       if (value !== null) {
         // We have data!!
         data = JSON.parse(value);
-        console.log(data);
         authCtx.authenticate(data.token, data.email, data.userName);
         setIsLoading(false);
       }
@@ -123,7 +133,6 @@ function Navigation() {
     }
     setIsLoading(false);
   }
-  console.log(authCtx);
   // loading screen while checking if user is logged in
   if (isLoading) {
     return <LoadingScreen />;
@@ -141,15 +150,18 @@ function Navigation() {
             component={AuthenticatedStack}
           />
         )}
+        {authCtx.isAuthenticated && (
+          <Stack.Screen name="GameScreen" component={GameScreen} />
+        )}
+        {authCtx.isAuthenticated && (
+          <Stack.Screen name="JoinGameScreen" component={JoinGameScreen} />
+        )}
+
         {!authCtx.isAuthenticated && (
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
         )}
         {!authCtx.isAuthenticated && (
           <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-        )}
-
-        {authCtx.isAuthenticated && (
-          <Stack.Screen name="GameScreen" component={GameScreen} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -33,7 +33,8 @@
     "react-native-screens": "~3.18.0",
     "react-native-select-dropdown": "^3.1.0",
     "react-native-socket-io-wrapper": "^0.6.2",
-    "react-native-web": "~0.18.9"
+    "react-native-web": "~0.18.9",
+    "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

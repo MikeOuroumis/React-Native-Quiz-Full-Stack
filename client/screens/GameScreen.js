@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { EncodeMode, decode } from "html-entities";
 import ButtonComponent from "./../components/ButtonComponent";
+import socket from "./../util/socket";
+import LoadingScreen from "./LoadingScreen";
 
 export default function GameScreen(props) {
   let [results, setResults] = useState([]);
@@ -11,11 +13,30 @@ export default function GameScreen(props) {
   const [isFetching, setIsFetching] = useState(true);
   let screen = null;
   let [objAnswers, setObjAnswers] = useState([]);
+  const [opponentJoined, setOpponentJoined] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      console.log("clean up");
+      socket.emit("clean_up");
+    };
+  }, []);
 
   useEffect(() => {
     //getting questions from trivia API by using the index of category
     getQuestionsFromAPI(props.route.params.index);
   }, []);
+
+  useEffect(() => {
+    // if (!opponentJoined) {
+    socket.on("opponent_joined", (data) => {
+      setOpponentJoined(data);
+      console.log("opponent joined", data);
+    });
+    // }
+    // prevented the infinite loop of sending questions to the server
+    opponentJoined && socket.emit("send_questions", results);
+  }, [socket]);
 
   async function getQuestionsFromAPI(categoryId) {
     try {
@@ -52,6 +73,7 @@ export default function GameScreen(props) {
           result.all_answers = allAnswers;
         }
         setResults(results);
+        socket.emit("send_questions", results);
         console.log(results);
 
         setIsFetching(false);
@@ -62,21 +84,16 @@ export default function GameScreen(props) {
     }
   }
 
-  //web socket connection
-  const ws = new WebSocket("ws://192.168.1.55:5001");
-  ws.onopen = () => {
-    // connection opened
-    ws.send("GameScreen connected to socket"); // send a message
-  };
-
   function handlePressAnswer(clickedAnswer) {
     console.log(clickedAnswer);
+    // socket.connect();
+
+    socket.emit("send_answer", clickedAnswer);
+
     //check if the clicked answer is correct
     if (clickedAnswer === results[currentQuestion].correct_answer) {
       //emit the correct answer to the server and update the score of the player
-      ws.send("Correct Answer");
     } else {
-      console.log("incorrect");
     }
   }
 
@@ -115,19 +132,20 @@ export default function GameScreen(props) {
 
     screen = (
       <View style={styles.container}>
-        <Text style={styles.title}>Game Screen</Text>
         <Text style={styles.title}>
           {decode(results[currentQuestion].question)}
         </Text>
         {answers}
-        <Button
-          title="Next Question"
-          onPress={() => console.log("Next Question Clicked")}
-        />
+        <Button title="Next Question" onPress={() => socket.emit("clean_up")} />
       </View>
     );
   }
 
+  if (!opponentJoined) {
+    return (
+      <LoadingScreen text="Waiting for the opponent to join the game..." />
+    );
+  }
   return screen;
 }
 

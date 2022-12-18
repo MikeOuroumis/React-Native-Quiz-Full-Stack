@@ -18,14 +18,12 @@ function AuthContextProvider({ children }) {
     setAuthToken(token);
     setAuthEmail(email);
     setAuthUserName(userName);
-    console.log("context working");
   }
 
   function logout() {
     setAuthToken(null);
     setAuthEmail(null);
     setAuthUserName(null);
-    console.log("context working");
   }
 
   const value = {

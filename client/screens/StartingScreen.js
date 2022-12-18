@@ -6,9 +6,16 @@ import LoginScreen from "./LoginScreen";
 import LoadingScreen from "./LoadingScreen";
 import COLORS from "../constants/colors";
 import AuthContextProvider, { AuthContext } from "../store/auth-context";
+import socket from "../util/socket";
 
 export default function StartingScreen(props) {
   const authCtx = useContext(AuthContext);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      socket.emit("on_connect", "someone connected");
+    });
+  }, []);
 
   return (
     <AuthContextProvider>

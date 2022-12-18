@@ -81,17 +81,50 @@ app.post("/userData", async (req, res) => {
   } catch (error) {}
 });
 
-//socket.io
+// ==========socket.io================
+const Server = app.listen(5002);
+let questions;
 
-//create WebSocket server
-const WebSocket = require("ws");
-const serverWs = new WebSocket.Server({ port: 5001 });
+const io = require("socket.io")(Server, {
+  cors: {
+    origin: "http://192.168.1.55:5002",
+    methods: ["GET", "POST"],
+  },
+});
 
-serverWs.on("connection", (ws) => {
-  ws.on("message", (message) => {
-    console.log(`Received message => ${message}`);
+io.on("connection", (socket) => {
+  console.log("a user connected:", socket.id);
+
+  socket.on("on_connect", (msg) => {
+    console.log(msg);
   });
-  ws.send("Hello! Message From Server");
+
+  socket.on("send_answer", (data) => {
+    socket.broadcast.emit("receive_answer", data);
+  });
+
+  socket.on("send_questions", (data) => {
+    questions = data;
+    socket.broadcast.emit("receive_questions", data);
+  });
+  console.log("the questions are", questions);
+  socket.emit("receive_questions", questions);
+
+  socket.on("give_me_questions", () => {
+    socket.emit("receive_questions", questions);
+  });
+
+  socket.on("join_game", (data) => {
+    socket.broadcast.emit("opponent_joined", data);
+    console.log("opponent joined", data);
+  });
+
+  socket.on("clean_up", () => {
+    questions = null;
+    socket.broadcast.emit("clean_up_questions", () =>
+      console.log("questions cleaned up successfully")
+    );
+  });
 });
 
 app.listen(5000, () => {
