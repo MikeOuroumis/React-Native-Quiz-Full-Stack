@@ -28,12 +28,12 @@ export default function GameScreen(props) {
   }, []);
 
   useEffect(() => {
-    // if (!opponentJoined) {
-    socket.on("opponent_joined", (data) => {
-      setOpponentJoined(data);
-      console.log("opponent joined", data);
-    });
-    // }
+    if (!opponentJoined) {
+      socket.on("opponent_joined", (data) => {
+        setOpponentJoined(data);
+        console.log("opponent joined", data);
+      });
+    }
     // prevented the infinite loop of sending questions to the server
     opponentJoined && socket.emit("send_questions", results);
   }, [socket]);

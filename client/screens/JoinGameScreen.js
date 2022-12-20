@@ -6,42 +6,32 @@ import { EncodeMode, decode } from "html-entities";
 import ButtonComponent from "../components/ButtonComponent";
 import socket from "../util/socket";
 import LoadingScreen from "./LoadingScreen";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function JoinGameScreen(props) {
   let [results, setResults] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   let screen = null;
-  let clean_up = false;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("clean up results when starting");
+      setResults(null);
+      return () => {
+        console.log("clean up");
+        socket.emit("join_game", false);
+      };
+    }, [])
+  );
 
   useEffect(() => {
-    return () => {
-      console.log("clean up");
-      socket.emit("join_game", false);
-    };
-  }, []);
-
-  useEffect(() => {
-    setResults(null);
-    // console.log("clean up when starting");
-  }, []);
-
-  useEffect(() => {
-    //on socket clean up
-
-    socket.on("clean_up_questions", (data) => {
-      // console.log(data);
+    console.log("clean up JoinGameScreen works");
+    socket.on("clean_up_questions", () => {
       console.log("creator of the game cleaned up");
-      setResults(data);
+      setResults(null);
     });
-    if (!results) {
-      console.log("trying to join");
-      socket.emit("give_me_questions");
-      socket.on("receive_questions", (data) => {
-        socket.emit("join_game", true);
-        setResults(data);
-      });
-    }
   }, [socket]);
+
   if (!results) {
     console.log("trying to join");
     socket.emit("give_me_questions");
@@ -50,12 +40,6 @@ export default function JoinGameScreen(props) {
       socket.emit("join_game", true);
     });
   }
-
-  // return (
-  //   <View style={styles.container}>
-  //     <Text style={styles.title}>{JSON.stringify(results)}</Text>
-  //   </View>
-  // );
 
   if (results !== null && results !== undefined) {
     const answers = results[currentQuestion]?.all_answers.map((result) => {
@@ -81,17 +65,19 @@ export default function JoinGameScreen(props) {
         {answers}
         <Button
           title="Next Question"
-          onPress={() => console.log("Next Question Clicked")}
+          onPress={() => {
+            socket.emit("join_game", false, () => {
+              console.log("cleaned up");
+            });
+          }}
         />
       </View>
     );
     return screen;
   }
-  if (results === null) {
-    return (
-      <LoadingScreen text="Waiting for your opponent to create the game..." />
-    );
-  }
+  return (
+    <LoadingScreen text="Waiting for your opponent to create the game..." />
+  );
 }
 
 const styles = StyleSheet.create({

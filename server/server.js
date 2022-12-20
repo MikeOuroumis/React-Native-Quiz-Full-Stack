@@ -84,6 +84,7 @@ app.post("/userData", async (req, res) => {
 // ==========socket.io================
 const Server = app.listen(5002);
 let questions;
+let opponentJoined = false;
 
 const io = require("socket.io")(Server, {
   cors: {
@@ -115,9 +116,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join_game", (data) => {
+    opponentJoined = data;
     socket.broadcast.emit("opponent_joined", data);
-    console.log("opponent joined", data);
+    // console.log("opponent joined", data);
   });
+  // console.log("opponent joined", opponentJoined);
 
   socket.on("clean_up", () => {
     questions = null;
