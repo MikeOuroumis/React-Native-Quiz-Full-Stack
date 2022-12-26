@@ -3,9 +3,9 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { EncodeMode, decode } from "html-entities";
-import ButtonComponent from "./../components/ButtonComponent";
 import socket from "./../util/socket";
 import LoadingScreen from "./LoadingScreen";
+import COLORS from "../constants/colors";
 
 export default function GameScreen(props) {
   let [results, setResults] = useState([]);
@@ -136,7 +136,6 @@ export default function GameScreen(props) {
           {decode(results[currentQuestion].question)}
         </Text>
         {answers}
-        <Button title="Next Question" onPress={() => socket.emit("clean_up")} />
       </View>
     );
   }
@@ -158,7 +157,19 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#fff",
-    fontSize: 20,
+    borderColor: COLORS.primaryBlue,
+    borderWidth: 1,
+    borderRadius: 10,
+    fontSize: 22,
+    width: "80%",
+    minHeight: 200,
+    textAlignVertical: "center",
+    padding: 10,
+    backgroundColor: "#000",
+    paddingVertical: 40,
+    marginBottom: 20,
+    textAlign: "center",
+
     fontWeight: "bold",
   },
   answer: {
@@ -168,7 +179,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   answersPressable: {
-    maxHeight: 50,
+    maxHeight: 200,
+
     borderRadius: 10,
     width: "80%",
     marginVertical: 10,
