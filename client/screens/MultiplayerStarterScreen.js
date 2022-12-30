@@ -64,7 +64,7 @@ export default function MultiplayerStarterScreen(props) {
         {createGame && (
           <DropdownComponent
             data={categoryNames}
-            defaultValue={categoryNames[0]}
+            defaultValue={categoryNames}
             onSelect={(selectedItem, index) => {
               console.log(selectedItem, index);
               setSelected(selectedItem);

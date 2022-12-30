@@ -17,6 +17,7 @@
     "@react-navigation/native": "^6.1.1",
     "@react-navigation/native-stack": "^6.9.6",
     "axios": "^1.2.0",
+    "cli": "^1.0.1",
     "decode-html": "^2.0.0",
     "expo": "~47.0.6",
     "expo-status-bar": "~1.4.2",
@@ -45,5 +46,8 @@
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-react-hooks": "^4.6.0"
   },
-  "private": true
+  "private": true,
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
