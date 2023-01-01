@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2016",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "noEmitOnError": true,
+    "esModuleInterop": false,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true
+  },
+  "extends": "expo/tsconfig.base"
+}
